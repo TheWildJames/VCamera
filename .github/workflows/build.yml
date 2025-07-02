@@ -22,18 +22,29 @@ jobs:
         java-version: '8'
         distribution: 'temurin'
 
-    # Set up Android SDK
-    - name: Set up Android SDK
-      uses: android-actions/setup-android@v3
-      with:
-        cmdline-tools-version: '31.0.0' # Matches buildToolsVersion
-
-    # Install additional dependencies (e.g., for native components or v4l2loopback)
+    # Install Ubuntu dependencies (e.g., for native components or v4l2loopback)
     - name: Install Ubuntu dependencies
       run: |
         sudo apt-get update
         sudo apt-get install -y build-essential cmake libopencv-dev v4l2loopback-dkms
         sudo modprobe v4l2loopback devices=1
+
+    # Set up Android SDK
+    - name: Set up Android SDK
+      uses: android-actions/setup-android@v3
+      with:
+        cmdline-tools-version: '9477386_latest' # Use a valid version from https://developer.android.com/studio#downloads
+        packages: |
+          build-tools;31.0.0
+          platforms;android-33
+          platform-tools
+
+    # Accept Android SDK licenses
+    - name: Accept Android SDK licenses
+      run: |
+        yes | sdkmanager --licenses
+      env:
+        ANDROID_HOME: /usr/local/lib/android/sdk
 
     # Cache Gradle dependencies
     - name: Cache Gradle packages
@@ -46,7 +57,7 @@ jobs:
         restore-keys: ${{ runner.os }}-gradle-
 
     # Grant execute permission for gradlew
-    - name: Grant execute permission for gradlew
+    - name: Grant execute permission moulding
       run: chmod +x gradlew
       working-directory: ${{ github.workspace }}
 
